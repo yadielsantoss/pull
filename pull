@@ -1,0 +1,589 @@
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
+local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+
+local Window = Fluent:CreateWindow({
+    Title = "Iamrich " .. Fluent.Version,
+    SubTitle = "by Imarich",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true, -- The blur may be detectable, setting this to false disables blur entirely
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.LeftControl -- Used when theres no MinimizeKeybind
+})
+
+local Tabs = {
+    Event = Window:AddTab({ Title = "Event", Icon = "Trophy" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
+}
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Get INF Power 😯", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local player = game:GetService("Players").LocalPlayer
+                local powerEggs = player:FindFirstChild("PowerEggs") -- Find PowerEggs
+
+                if powerEggs and powerEggs:IsA("NumberValue") then
+                    if powerEggs.Value >= 0 and powerEggs.Value <= 10000000000777777777777777 then
+                        powerEggs.Value = math.huge
+                    end
+                end             
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Auto click", Default = false})
+
+Toggle:OnChanged(function(enabled)
+    local player = game:GetService("Players").LocalPlayer -- Obtener el jugador local
+    local AutoTrain = player:FindFirstChild("AutoTrain") -- Buscar AutoTrain
+
+    -- Verificar si AutoTrain existe y es un BoolValue
+    if AutoTrain and AutoTrain:IsA("BoolValue") then
+        AutoTrain.Value = enabled -- Cambiar su valor dependiendo del Toggle
+    end
+end)
+
+Tabs.Event:AddButton({
+    Title = "Swing fast",
+    Description = "Swing 100x fast",
+    Callback = function()
+        local player = game:GetService("Players").LocalPlayer -- Obtener el jugador local
+        local SwingValue = player:FindFirstChild("SwingValue") -- Buscar SwingValue
+                
+        -- Verificar si SwingValue existe y es un NumberValue
+        if SwingValue and SwingValue:IsA("NumberValue") then
+            if SwingValue.Value >= 0 and SwingValue.Value <= 110 then
+                SwingValue.Value = 1000000
+            end
+        end
+    end
+})
+
+Tabs.Event:AddParagraph({
+    Title = "Part 1 Event",
+    Content = "This is Part 1"
+})
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Egg", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = "Hall Egg1",
+                    [2] = "Buy1"
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("GameClient"):WaitForChild("Events"):WaitForChild("RemoteFunction"):WaitForChild("BuyEgg"):InvokeServer(unpack(args))                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Play time pass", Default = false})
+
+local running = false
+
+Toggle:OnChanged(function(enabled)
+    running = enabled
+    if running then
+        task.spawn(function()
+            while running do
+                for i = 1, 12 do
+                    local args = {
+                        {["Level"] = tostring(i), ["Method"] = "RequestReward", ["Type"] = "Normal"},
+                        {["Level"] = tostring(i), ["Method"] = "RequestReward", ["Type"] = "Premium"},
+                        {["Method"] = "Reset"}
+                    }
+                    
+                    for _, arg in ipairs(args) do
+                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("OnDailyHandlerEvent"):FireServer(arg)
+                    end
+                end
+                task.wait(60)
+            end
+        end)
+    end
+end)
+
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Click Upgrades", Default = false})
+
+local function updateEgg(player)
+    local powerEggs = player:FindFirstChild("PowerEggs") -- Find PowerEggs
+
+    -- Check if PowerEggs exists and is a NumberValue
+    if powerEggs and powerEggs:IsA("NumberValue") then
+        local eggID = nil  -- Initialize the egg ID to be set based on PowerEggs value
+
+        if powerEggs.Value >= 1000000000 then
+            eggID = "12"
+        elseif powerEggs.Value >= 100000000 then
+            eggID = "11"
+        elseif powerEggs.Value >= 10000000 then
+            eggID = "10"
+        elseif powerEggs.Value >= 2000000 then
+            eggID = "9"
+        elseif powerEggs.Value >= 1000000 then
+            eggID = "8"
+        elseif powerEggs.Value >= 500000 then
+            eggID = "7"
+        elseif powerEggs.Value >= 100000 then
+            eggID = "6"
+        elseif powerEggs.Value >= 50000 then
+            eggID = "5"
+        elseif powerEggs.Value >= 20000 then
+            eggID = "4"
+        elseif powerEggs.Value >= 5000 then
+            eggID = "3"
+        elseif powerEggs.Value >= 75 then
+            eggID = "2"
+        else
+        end
+
+        -- If an egg ID was set, fire the remote event without any output
+        if eggID then
+            local args = {
+                [1] = game:GetService("ReplicatedStorage"):WaitForChild("Items"):WaitForChild("Eggs"):WaitForChild(eggID),
+                [2] = true
+            }
+
+            -- Fire the remote event to equip the egg silently
+            game:GetService("ReplicatedStorage"):WaitForChild("GameClient"):WaitForChild("Events"):WaitForChild("RemoteEvent"):WaitForChild("ClickChangeEvent"):FireServer(unpack(args))
+        end
+    end
+end
+
+local running = false  -- Flag to control the toggle state
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        local player = game:GetService("Players").LocalPlayer
+        -- Initial update when toggle is enabled
+        updateEgg(player)
+
+        -- Listen for changes to the PowerEggs value
+        player:WaitForChild("PowerEggs").Changed:Connect(function()
+            updateEgg(player)  -- Update silently whenever PowerEggs changes
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Fennox", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "1",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Hydrox", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "2",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Pinkpurr", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "3",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Bullrock", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "4",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Aquarion", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "5",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+Tabs.Event:AddParagraph({
+    Title = "Part 2 Event",
+    Content = "This is Part 2"
+})
+
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Egg", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = "Hall Egg2",
+                    [2] = "Buy1"
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("GameClient"):WaitForChild("Events"):WaitForChild("RemoteFunction"):WaitForChild("BuyEgg"):InvokeServer(unpack(args))                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Peepkin", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "6",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Pignite", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "7",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Rocky", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "8",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Tortor", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "9",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Cowzilla", Default = false})
+
+local running = false  -- Flag to control the loop
+
+Toggle:OnChanged(function(enabled)
+    running = enabled  -- Set the running state based on the toggle
+
+    if running then
+        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
+            while running do
+                local args = {
+                    [1] = 1
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = "10",
+                    [2] = false
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
+
+                local args = {
+                    [1] = 0
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                
+                task.wait(0)  -- Wait for 1 second before checking again
+            end
+        end)
+    end
+end)
+
+SaveManager:SetLibrary(Fluent)
+InterfaceManager:SetLibrary(Fluent)
+
+-- Ignore keys that are used by ThemeManager.
+-- (we dont want configs to save themes, do we?)
+SaveManager:IgnoreThemeSettings()
+
+-- You can add indexes of elements the save manager should ignore
+SaveManager:SetIgnoreIndexes({})
+
+-- use case for doing it this way:
+-- a script hub could have themes in a global folder
+-- and game configs in a separate folder per game
+InterfaceManager:SetFolder("FluentScriptHub")
+SaveManager:SetFolder("FluentScriptHub/specific-game")
+
+InterfaceManager:BuildInterfaceSection(Tabs.Settings)
+SaveManager:BuildConfigSection(Tabs.Settings)
+
+-- You can use the SaveManager:LoadAutoloadConfig() to load a config
+-- which has been marked to be one that auto loads!
+SaveManager:LoadAutoloadConfig()
