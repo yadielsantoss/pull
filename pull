@@ -14,32 +14,9 @@ local Window = Fluent:CreateWindow({
 
 local Tabs = {
     Event = Window:AddTab({ Title = "Event", Icon = "Trophy" }),
-    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" }),
 }
 
-local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Get INF Power 😯", Default = false})
 
-local running = false  -- Flag to control the loop
-
-Toggle:OnChanged(function(enabled)
-    running = enabled  -- Set the running state based on the toggle
-
-    if running then
-        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
-            while running do
-                local player = game:GetService("Players").LocalPlayer
-                local powerEggs = player:FindFirstChild("PowerEggs") -- Find PowerEggs
-
-                if powerEggs and powerEggs:IsA("NumberValue") then
-                    if powerEggs.Value >= 0 and powerEggs.Value <= 10000000000777777777777777 then
-                        powerEggs.Value = math.huge
-                    end
-                end             
-                task.wait(0)  -- Wait for 1 second before checking again
-            end
-        end)
-    end
-end)
 
 local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Auto click", Default = false})
 
@@ -69,206 +46,196 @@ Tabs.Event:AddButton({
     end
 })
 
-Tabs.Event:AddParagraph({
-    Title = "Part 1 Event",
-    Content = "This is Part 1"
-})
 
-local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Egg", Default = false})
-
-local running = false  -- Flag to control the loop
-
-Toggle:OnChanged(function(enabled)
-    running = enabled  -- Set the running state based on the toggle
-
-    if running then
-        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
-            while running do
-                local args = {
-                    [1] = "Hall Egg1",
-                    [2] = "Buy1"
-                }
-                
-                game:GetService("ReplicatedStorage"):WaitForChild("GameClient"):WaitForChild("Events"):WaitForChild("RemoteFunction"):WaitForChild("BuyEgg"):InvokeServer(unpack(args))                
-                task.wait(0)  -- Wait for 1 second before checking again
-            end
-        end)
-    end
-end)
-
-local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Play time pass", Default = false})
-
-local running = false
-
-Toggle:OnChanged(function(enabled)
-    running = enabled
-    if running then
-        task.spawn(function()
-            while running do
-                for i = 1, 12 do
-                    local args = {
-                        {["Level"] = tostring(i), ["Method"] = "RequestReward", ["Type"] = "Normal"},
-                        {["Level"] = tostring(i), ["Method"] = "RequestReward", ["Type"] = "Premium"},
-                        {["Method"] = "Reset"}
-                    }
-                    
-                    for _, arg in ipairs(args) do
-                        game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("OnDailyHandlerEvent"):FireServer(arg)
-                    end
-                end
-                task.wait(60)
-            end
-        end)
-    end
-end)
 
 
 local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Click Upgrades", Default = false})
+
+local lastEquippedEggID = nil -- Store the last equipped egg to prevent spam
 
 local function updateEgg(player)
     local powerEggs = player:FindFirstChild("PowerEggs") -- Find PowerEggs
 
     -- Check if PowerEggs exists and is a NumberValue
     if powerEggs and powerEggs:IsA("NumberValue") then
-        local eggID = nil  -- Initialize the egg ID to be set based on PowerEggs value
+        local eggID = nil  -- Initialize the egg ID
 
-        if powerEggs.Value >= 1000000000 then
-            eggID = "12"
-        elseif powerEggs.Value >= 100000000 then
-            eggID = "11"
-        elseif powerEggs.Value >= 10000000 then
-            eggID = "10"
-        elseif powerEggs.Value >= 2000000 then
-            eggID = "9"
-        elseif powerEggs.Value >= 1000000 then
-            eggID = "8"
-        elseif powerEggs.Value >= 500000 then
-            eggID = "7"
-        elseif powerEggs.Value >= 100000 then
-            eggID = "6"
-        elseif powerEggs.Value >= 50000 then
-            eggID = "5"
-        elseif powerEggs.Value >= 20000 then
-            eggID = "4"
-        elseif powerEggs.Value >= 5000 then
-            eggID = "3"
-        elseif powerEggs.Value >= 75 then
+        -- Ascending check so the best egg is set
+        if powerEggs.Value >= 750 then
             eggID = "2"
-        else
+        end
+        if powerEggs.Value >= 2500 then
+            eggID = "3"
+        end
+        if powerEggs.Value >= 10000 then
+            eggID = "4"
+        end
+        if powerEggs.Value >= 25000 then
+            eggID = "5"
+        end
+        if powerEggs.Value >= 100000 then
+            eggID = "6"
+        end
+        if powerEggs.Value >= 250000 then
+            eggID = "7"
+        end
+        if powerEggs.Value >= 500000 then
+            eggID = "8"
+        end
+        if powerEggs.Value >= 1000000 then
+            eggID = "9"
+        end
+        if powerEggs.Value >= 2500000 then
+            eggID = "10"
+        end
+        if powerEggs.Value >= 5000000 then
+            eggID = "11"
+        end
+        if powerEggs.Value >= 10000000 then
+            eggID = "12"
         end
 
-        -- If an egg ID was set, fire the remote event without any output
-        if eggID then
+        -- Only equip if the eggID has changed
+        if eggID and eggID ~= lastEquippedEggID then
+            lastEquippedEggID = eggID -- Update last equipped egg
             local args = {
-                [1] = game:GetService("ReplicatedStorage"):WaitForChild("Items"):WaitForChild("Eggs"):WaitForChild(eggID),
+                [1] = game:GetService("ReplicatedStorage")
+                    :WaitForChild("Items")
+                    :WaitForChild("Eggs")
+                    :WaitForChild(eggID),  -- Use the variable eggID
                 [2] = true
             }
 
-            -- Fire the remote event to equip the egg silently
-            game:GetService("ReplicatedStorage"):WaitForChild("GameClient"):WaitForChild("Events"):WaitForChild("RemoteEvent"):WaitForChild("ClickChangeEvent"):FireServer(unpack(args))
+            game:GetService("ReplicatedStorage")
+                :WaitForChild("GameClient")
+                :WaitForChild("Events")
+                :WaitForChild("RemoteEvent")
+                :WaitForChild("ClickChangeEvent")
+                :FireServer(unpack(args))
         end
     end
 end
 
 local running = false  -- Flag to control the toggle state
+local connection  -- Variable to store the connection for later disconnect
 
 Toggle:OnChanged(function(enabled)
     running = enabled  -- Set the running state based on the toggle
+    local player = game:GetService("Players").LocalPlayer
 
     if running then
-        local player = game:GetService("Players").LocalPlayer
         -- Initial update when toggle is enabled
         updateEgg(player)
 
+        -- Disconnect any previous connection to avoid stacking
+        if connection then
+            connection:Disconnect()
+            connection = nil
+        end
+
         -- Listen for changes to the PowerEggs value
-        player:WaitForChild("PowerEggs").Changed:Connect(function()
+        connection = player:WaitForChild("PowerEggs").Changed:Connect(function()
             updateEgg(player)  -- Update silently whenever PowerEggs changes
         end)
+    else
+        -- Disconnect the event when the toggle is turned off
+        if connection then
+            connection:Disconnect()
+            connection = nil
+        end
     end
 end)
 
-Tabs.Event:AddParagraph({
-    Title = "Part 2 Event",
-    Content = "This is Part 2"
-})
 
+local Toggle = Tabs.Event:AddToggle("STRENGTH", {Title = "Dungeon Normal", Default = false})
 
-local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Egg", Default = false})
+local isRunning = false
 
-local running = false  -- Flag to control the loop
-
-Toggle:OnChanged(function(enabled)
-    running = enabled  -- Set the running state based on the toggle
-
-    if running then
-        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
-            while running do
+-- Listen for the toggle change
+Toggle:OnChanged(function(state)
+    if state then
+        -- Start the loop when the toggle is on
+        if not isRunning then
+            isRunning = true
+            -- Loop while the toggle is on
+            while isRunning do
+                -- Set the arguments for the egg purchase
                 local args = {
-                    [1] = "Hall Egg2",
-                    [2] = "Buy1"
+                    [1] = "Normal"
                 }
                 
-                game:GetService("ReplicatedStorage"):WaitForChild("GameClient"):WaitForChild("Events"):WaitForChild("RemoteFunction"):WaitForChild("BuyEgg"):InvokeServer(unpack(args))                
-                task.wait(0)  -- Wait for 1 second before checking again
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("Dungeon"):WaitForChild("OnJoinDungeon"):FireServer(unpack(args))
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("Dungeon"):WaitForChild("OnDungeonClick"):FireServer()
+
+                -- Sleep for a short period to prevent overwhelming the server
+                wait(0)  -- Adjust the interval as needed
             end
-        end)
+        end
+    else
+        -- Stop the loop when the toggle is off
+        isRunning = false
     end
 end)
 
-local Toggle = Tabs.Event:AddToggle("Part 1 event", {Title = "Easy win Billy", Default = false})
+local Toggle = Tabs.Event:AddToggle("STRENGTH", {Title = "Dungeon Hard", Default = false})
 
-local running = false  -- Flag to control the loop
+local isRunning = false
 
-Toggle:OnChanged(function(enabled)
-    running = enabled  -- Set the running state based on the toggle
-
-    if running then
-        task.spawn(function()  -- Run in a separate thread to avoid freezing the game
-            while running do
+-- Listen for the toggle change
+Toggle:OnChanged(function(state)
+    if state then
+        -- Start the loop when the toggle is on
+        if not isRunning then
+            isRunning = true
+            -- Loop while the toggle is on
+            while isRunning do
+                -- Set the arguments for the egg purchase
                 local args = {
-                    [1] = 1
+                    [1] = "Hard"
                 }
                 
-                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("RemoveC"):FireServer(unpack(args))
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("Dungeon"):WaitForChild("OnJoinDungeon"):FireServer(unpack(args))
                 
-                local args = {
-                    [1] = "15",
-                    [2] = false
-                }
-                
-                game:GetService("ReplicatedStorage"):WaitForChild("HALLOWEEN2024FOLDER"):WaitForChild("WinEvent"):FireServer(unpack(args))
-                
-                local args = {
-                    [1] = 0
-                }
-                
-                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("RemoveC"):FireServer(unpack(args))
-                   
-                task.wait(0)  -- Wait for 1 second before checking again
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("Dungeon"):WaitForChild("OnDungeonClick"):FireServer()
+
+                -- Sleep for a short period to prevent overwhelming the server
+                wait(0)  -- Adjust the interval as needed
             end
-        end)
+        end
+    else
+        -- Stop the loop when the toggle is off
+        isRunning = false
     end
 end)
 
-SaveManager:SetLibrary(Fluent)
-InterfaceManager:SetLibrary(Fluent)
+local Toggle = Tabs.Event:AddToggle("STRENGTH", {Title = "Dungeon Chaos", Default = false})
 
--- Ignore keys that are used by ThemeManager.
--- (we dont want configs to save themes, do we?)
-SaveManager:IgnoreThemeSettings()
+local isRunning = false
 
--- You can add indexes of elements the save manager should ignore
-SaveManager:SetIgnoreIndexes({})
+-- Listen for the toggle change
+Toggle:OnChanged(function(state)
+    if state then
+        -- Start the loop when the toggle is on
+        if not isRunning then
+            isRunning = true
+            -- Loop while the toggle is on
+            while isRunning do
+                -- Set the arguments for the egg purchase
+                local args = {
+                    [1] = "Chaos"
+                }
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("Dungeon"):WaitForChild("OnJoinDungeon"):FireServer(unpack(args))
+                
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("Events"):WaitForChild("Dungeon"):WaitForChild("OnDungeonClick"):FireServer()
 
--- use case for doing it this way:
--- a script hub could have themes in a global folder
--- and game configs in a separate folder per game
-InterfaceManager:SetFolder("FluentScriptHub")
-SaveManager:SetFolder("FluentScriptHub/specific-game")
-
-InterfaceManager:BuildInterfaceSection(Tabs.Settings)
-SaveManager:BuildConfigSection(Tabs.Settings)
-
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
--- which has been marked to be one that auto loads!
-SaveManager:LoadAutoloadConfig()
+                -- Sleep for a short period to prevent overwhelming the server
+                wait(0)  -- Adjust the interval as needed
+            end
+        end
+    else
+        -- Stop the loop when the toggle is off
+        isRunning = false
+    end
+end)
