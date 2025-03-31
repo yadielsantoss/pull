@@ -28,6 +28,16 @@ Toggle:OnChanged(function(enabled)
     if AutoTrain and AutoTrain:IsA("BoolValue") then
         AutoTrain.Value = enabled -- Cambiar su valor dependiendo del Toggle
     end
+
+    -- Mantener el chequeo activo mientras el toggle esté activado
+    while enabled do
+        task.wait(0.1) -- Pequeña espera para evitar sobrecarga
+        if AutoTrain and AutoTrain:IsA("BoolValue") then
+            AutoTrain.Value = enabled
+        else
+            break -- Si AutoTrain deja de existir, salir del bucle
+        end
+    end
 end)
 
 Tabs.Event:AddButton({
@@ -45,6 +55,7 @@ Tabs.Event:AddButton({
         end
     end
 })
+
 
 
 
